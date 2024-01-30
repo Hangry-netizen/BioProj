@@ -1,0 +1,6 @@
+
+auto-refresh page after call
+upon requesting for specific genome, build 2 interval trees (one for base and one for target)
+
+head 10 or 20 lines from sample csv 
+construct keyNode, valType, and keyTree
