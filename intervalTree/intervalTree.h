@@ -1,19 +1,19 @@
 #ifndef __INTERVALTREE_H
 #define __INTERVALTREE_H
 
+class value;
+
+//******************************************************************************
 class node {
     private:
         // records the node's key
         int key;
 
-        // records the number of values that share the same key
-        int keyCount;
+        // records the least key of subtree
+        int leastKey;
 
         // records the greatest key of subtree
         int greatestKey;
-
-        // records the least key of subtree
-        int leastKey;
 
         // records height of subtree
         int height;
@@ -25,43 +25,40 @@ class node {
         node *left, *right;
 
         // records the root of the value tree
-        value *valueRoot
+        iAVL *valTree;
 
-        // constructor for key tree nodes
-        node(int key, int value, int matchLen);
+        // constructor for nodes
+        node(bool primary, int key, int value);
 
-        // constructor for value tree nodes
-        node(int key);
-
-        friend class value;
-        friend class keyAVL;
-}
-
-class value {
-    private:
-        // records the value node
-        node *valueNode;
-
-        // records the length of match
-        int matchLen;
-
-        // constructor that causes value object to be initialized
-        value(int value=NULL, int matchLen=NULL);        
+        friend class iAVL;
 };
 
-class keyAVL {
+//******************************************************************************
+class iAVL {
     private:
-        // to point to the root of the tree
+        // points to the root of the tree
         node *root;
 
         // records the number of entries in the tree
         int treeCount;
 
-        // returns the minimum value in the subtree
-        int findMin(node *p) const;
+        // returns the height of p; returns 0 if p is NULL
+        int height(node *p) const;
 
-        // returns the maximum value in the subtree
-        int findMax(node *p) const;
+        // returns the leastKey of p; returns 0 if p is NULL
+        int leastKey(node *p) const;
+
+        // returns the greatestKey of p; returns 0 if p is NULL
+        int greatestKey(node *p) const;
+
+        // returns the calculation of p's height based on its children's
+        int calcHeight(node *p) const;
+
+        // returns the leastKey value in p's subtree
+        int calcLeastKey(node *p) const;
+
+        // returns the greatestKey value in p's subtree
+        int calcGreatestKey(node *p) const;
 
         // rotateLeft when p1 is a node that is right heavy imbalanced
         void rotateLeft(node *&p1);
@@ -70,43 +67,32 @@ class keyAVL {
         void rotateRight(node *&p1);
 
         // to balance given pointer
-        void bal(node *&p1);
-
-        // returns the height of p if it is real
-        // otherwise 0 if it is NULL
-        int height(node *p) const;
-
-        // return the calculation of p's height
-        // based on the height of its children
-        // this is not a recursive call
-        int calcHeight(node *p) const;
+        void bal(node *&p);
 
         // recursion helpers
-        bool insert(node *&p, int key, int value, int matchLen);
+        bool insert(bool primary, node *&p, int key, int value);
         void printIt(node *p, int &index) const;
         void clear(node *p);
 
     public:
-        // constructor that causes object to be initialized
-        keyAVL();
+        // constructor that causes the tree object to be initialized
+        iAVL(bool primary = false);
 
-        // destructor that deletes all the nodes in the BST
-        // in preparation for the BST to be destroyed
-        ~keyAVL();
+        // destructor that deletes all the nodes in the tree object
+        ~iAVL();
 
-        // inserts the key/value pair into the tree
-        // returns true for success
+        // returns true if key/value pair is inserted into the tree
         // returns false if the key/value pair is already in the tree
-        bool insert(int key, int value, int matchLen);
+        bool insert(int key, int value);
 
-        // print the height of each node and its "index"
+        // removes all nodes from the tree, making the tree empty
+        void clear();
+
+        // prints the height of each node and its "index"
         void printIt() const;
 
         // returns the number of nodes in the tree
         int count() const;
-
-        // removes all nodes from the tree, making the tree empty
-        void clear();
 };
 
 #endif
