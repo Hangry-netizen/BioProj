@@ -1,7 +1,7 @@
 #ifndef __INTERVALTREE_H
 #define __INTERVALTREE_H
 
-class value;
+class iAVL;
 
 //******************************************************************************
 class node {
@@ -71,12 +71,14 @@ class iAVL {
 
         // recursion helpers
         bool insert(bool primary, node *&p, int key, int value);
-        void printIt(node *p, int &index) const;
+        void printIt(bool primary, node *p, int &index) const;
         void clear(node *p);
+
+        friend class node;
 
     public:
         // constructor that causes the tree object to be initialized
-        iAVL(bool primary = false);
+        iAVL();
 
         // destructor that deletes all the nodes in the tree object
         ~iAVL();

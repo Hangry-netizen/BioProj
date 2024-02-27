@@ -8,27 +8,25 @@
 using namespace std;
 
 //******************************************************************************
-void doWork(keyAVL theTree, int key[5], int val[5]) {
+void doWork(iAVL theTree, int key[5], int val[5]) {
     // for (int i = 0; i < 5; i++) {
     //     theTree.insert(key[i], val[i]);
     // }
 
-    theTree.insert(2,1);
-    theTree.insert(1,1);
-    theTree.insert(4,1);
-    theTree.insert(5,1);
-    theTree.insert(3,1);
+    theTree.insert(2,6);
+    theTree.insert(1,7);
+    theTree.insert(4,8);
+    theTree.insert(5,9);
+    theTree.insert(3,10);
 
-
-
-    // theTree.printIt();
+   theTree.printIt();
 
 }
 
 //******************************************************************************
 int main() {
     bool rc = false;
-    keyAVL theTree;
+    iAVL theTree;
 
     int key[] = {1, 2, 3, 4, 5};
     int val[] = {10, 9, 7, 6, 5};

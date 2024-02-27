@@ -37,9 +37,10 @@ node::node(bool primary, int key, int value) {
     this->key = key;
     
     if (primary) {
-        // if node is part of the primary 
-        iAVL *valTree = new iAVL();
-        valTree->insert(value, -1);
+        // if node is part of the primary tree, insert value into valTree
+        valTree = new iAVL();
+        valTree->insert(false, valTree->root, value, -1);
+
     } else {
         valTree = NULL;
     }
@@ -50,7 +51,7 @@ node::node(bool primary, int key, int value) {
 
 
 //******************************************************************************
-iAVL::iAVL(bool primary) {
+iAVL::iAVL() {
     // constructor that causes the object tree to be initialized
     root = NULL;
     treeCount = 0;
@@ -104,27 +105,27 @@ int iAVL::calcHeight(node *p) const {
     return max(height(p->left), height(p->right)) + 1;
 }
 
-//******************************************************************************
-int iAVL::calcLeastKey(node *p) const {
-    // returns the leastKey value in p's subtree
-    int rc = p->key;
+// //******************************************************************************
+// int iAVL::calcLeastKey(node *p) const {
+//     // returns the leastKey value in p's subtree
+//     int rc = p->key;
 
-    rc = p->left ? min(rc,p->left->key) : rc;
-    rc = p->right ? min(rc,p->right->key) : rc;
+//     rc = p->left ? min(rc,p->left->key) : rc;
+//     rc = p->right ? min(rc,p->right->key) : rc;
 
-    return rc;
-}
+//     return rc;
+// }
 
-//******************************************************************************
-int iAVL::calcGreatestKey(node *p) const {
-    // returns the greatestKey value in p's subtree
-    int rc = p->key;
+// //******************************************************************************
+// int iAVL::calcGreatestKey(node *p) const {
+//     // returns the greatestKey value in p's subtree
+//     int rc = p->key;
 
-    rc = p->left ? max(rc,p->left->key) : rc;
-    rc = p->right ? max(rc,p->right->key) : rc;
+//     rc = p->left ? max(rc,p->left->key) : rc;
+//     rc = p->right ? max(rc,p->right->key) : rc;
 
-    return rc;
-}
+//     return rc;
+// }
 
 //******************************************************************************
 void iAVL::rotateLeft(node *&p1) {
@@ -138,10 +139,6 @@ void iAVL::rotateLeft(node *&p1) {
     // recalculate height, greatestKey and leastKey since positions have changed
     p1->height = calcHeight(p1);
     p2->height = calcHeight(p2);
-    // p1->greatestKey = calcGreatestKey(p1);
-    // p2->greatestKey = calcGreatestKey(p2);
-    // p1->leastKey = calcLeastKey(p1);
-    // p2->leastKey = calcLeastKey(p2);
     p1 = p2;
 }
 
@@ -157,10 +154,6 @@ void iAVL::rotateRight(node *&p1) {
     // recalculate height since positions have been changed
     p1->height = calcHeight(p1);
     p2->height = calcHeight(p2);
-    // p1->greatestKey = calcGreatestKey(p1);
-    // p2->greatestKey = calcGreatestKey(p2);
-    // p1->leastKey = calcLeastKey(p1);
-    // p2->leastKey = calcLeastKey(p2);
     p1 = p2;
 }
 
@@ -189,8 +182,6 @@ void iAVL::bal(node *&p) {
         }
         // recalculate p's height
         p->height = calcHeight(p);
-        // p->greatestKey = calcGreatestKey(p);
-        // p->leastKey = calcLeastKey(p);
     }
 
 }
@@ -206,24 +197,18 @@ bool iAVL::insert(bool primary, node *&p, int key, int value) {
         if (key < p->key) {
             // if key is less than pointer's key, travel left
             rc = insert(primary, p->left, key, value);
-            p->greatestKey = calcGreatestKey(p);
-            p->leastKey = calcLeastKey(p);
         } else if (key > p->key) {
             // if key is more than pointer's key, travel right
             rc = insert(primary, p->right, key, value);
-            p->greatestKey = calcGreatestKey(p);
-            p->leastKey = calcLeastKey(p);
         } else {
             // if key is the same as pointer key, return p
             if (primary) {
-                rc = p->valTree->insert(value, -1);
+                rc = p->valTree->insert(false, p->valTree->root, value, -1);
             }
         }
     } else {
         // otherwise, we are at a leaf, create new node and return it
-        p = new node(true, key, value);
-        p->greatestKey = calcGreatestKey(p);
-        p->leastKey = calcLeastKey(p);
+        p = new node(primary, key, value);
         treeCount++;
         rc = true;
         
@@ -238,18 +223,24 @@ bool iAVL::insert(bool primary, node *&p, int key, int value) {
 
 //******************************************************************************
 // recursion helper
-void iAVL::printIt(node *p, int &index) const {
+void iAVL::printIt(bool primary, node *p, int &index) const {
     // print entries from left to right with their indexes and height
     if (p) {
-        printIt(p->left, index);
-        printIt(p->valueRoot, index);
+        if (primary) {
+            printIt(primary, p->left, index);      
+            cout << "At " << index++ << " the key is " << p->key;
+            cout << ": height = " << p->height << endl;
+            int secondaryIndex = 0;
+            root->valTree->printIt(false, p->valTree->root, secondaryIndex);
+            printIt(primary, p->right, index);
 
-        // printIt(p->left, index);
-        // cout << "At " << index++ << " the key is " << p->key;
-        // cout << ": height = " << p->height;
-        // cout << " greatestKey: " << p->greatestKey;
-        // cout << " leastKey: " << p->leastKey << endl;
-        // printIt(p->right, index);
+        } else {
+            printIt(primary, p->left, index);
+            cout << "    myValTree    " << endl;
+            cout << "    At " << index << " the key is " << p->key;
+            cout << ": height = " << p->height << endl;
+            printIt(primary, p->right , index);
+        }
     }
 }
 
@@ -268,13 +259,8 @@ bool iAVL::insert(int key, int value) {
     // returns in true if key/value pair is inserted
     // otherwise, results in false
     bool rc = false;
-    node *&p = root;
 
-    // insert to return pointer to inserted key node
-    if (insert(p, key, value)) {
-        cout << "Inserted key: " << p->key << endl;
-        insert(p->valueRoot, value);
-    }
+    rc = insert(true, root, key, value);
 
     return rc;
 }
@@ -291,7 +277,8 @@ void iAVL::clear() {
 void iAVL::printIt() const {
     // prints the tree's keys in ascending order with their index number
     int index = 0;
-    printIt(root, index);
+    bool primary = true;
+    printIt(primary, root, index);
 }
 
 //******************************************************************************
